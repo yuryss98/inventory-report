@@ -1,20 +1,26 @@
-from inventory_report.reports import simple_report, complete_report
-from inventory_report.importer import csv_importer, json_importer, xml_importer
+from inventory_report.reports.simple_report import SimpleReport
+from inventory_report.reports.complete_report import CompleteReport
+from inventory_report.importer.csv_importer import CsvImporter
+from inventory_report.importer.json_importer import JsonImporter
+from inventory_report.importer.xml_importer import XmlImporter
 
 
 class Inventory:
     @classmethod
-    def import_data(cls, path, type_report):
-        reports = []
+    def import_data(cls, path: str, type_report):
+        get_file_extension = path[-4:].lower()
 
-        if path.lower().endswith("csv"):
-            reports = csv_importer.CsvImporter.import_data(path)
-        elif path.lower().endswith("xml"):
-            reports = xml_importer.XmlImporter.import_data(path)
-        else:
-            reports = json_importer.JsonImporter.import_data(path)
+        files_extensions = {
+            ".csv": CsvImporter,
+            ".xml": XmlImporter,
+            "json": JsonImporter,
+        }
 
-        if type_report == "simples":
-            return simple_report.SimpleReport.generate(reports)
-        else:
-            return complete_report.CompleteReport.generate(reports)
+        types_of_reports = {
+            "simples": SimpleReport,
+            "completo": CompleteReport,
+        }
+
+        reports = files_extensions[get_file_extension].import_data(path)
+
+        return types_of_reports[type_report].generate(reports)
